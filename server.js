@@ -16,6 +16,7 @@ const PORT = config.site.port || 3000;
 // Data files
 const USERS_FILE = path.join(__dirname, 'data/users.json');
 const PRODUCTS_FILE = path.join(__dirname, 'data/products.json');
+const ORDERS_FILE = path.join(__dirname, 'data/orders.json');
 
 function readJSON(file) {
   if (!fs.existsSync(file)) return [];
@@ -121,7 +122,7 @@ function parseMultipart(req, boundary) {
         const idx = buf.indexOf(boundaryBuf, start);
         if (idx === -1) break;
         if (start > 0) {
-          const partBuf = buf.slice(start, idx - 2); // -2 for \r\n
+          const partBuf = buf.slice(start, idx - 2);
           const headerEnd = partBuf.indexOf('\r\n\r\n');
           if (headerEnd !== -1) {
             const headers = partBuf.slice(0, headerEnd).toString();
@@ -133,7 +134,7 @@ function parseMultipart(req, boundary) {
             }
           }
         }
-        start = idx + boundaryBuf.length + 2; // skip \r\n
+        start = idx + boundaryBuf.length + 2;
       }
       resolve(parts);
     });
@@ -179,6 +180,10 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, generateCaptcha());
     }
 
+    if (pathname === '/api/config' && method === 'GET') {
+      return sendJSON(res, { adminTelegram: config.admin.telegramUsername || '@admin', minFiatTopupUSD: config.rates.minFiatTopupUSD || 10 });
+    }
+
     if (pathname === '/api/register' && method === 'POST') {
       const body = JSON.parse(await parseBody(req));
       const { username, displayName, password, captchaId, captchaText } = body;
@@ -187,12 +192,13 @@ const server = http.createServer(async (req, res) => {
       captchaStore.delete(captchaId);
       const users = readJSON(USERS_FILE);
       if (users.find(u => u.username === username)) return sendJSON(res, { success: false, error: 'Пользователь уже существует' });
-      const user = { id: crypto.randomBytes(8).toString('hex'), username, displayName: displayName || username, password: crypto.createHash('sha256').update(password).digest('hex'), balance: 0, createdAt: new Date().toISOString(), wallet: null };
+      const ip = getIP(req);
+      const user = { id: crypto.randomBytes(8).toString('hex'), username, displayName: displayName || username, password: crypto.createHash('sha256').update(password).digest('hex'), balance: 0, createdAt: new Date().toISOString(), wallet: null, ip, blocked: false };
       users.push(user);
       writeJSON(USERS_FILE, users);
       const sess = ensureSession(req, res);
       sess.userId = user.id;
-      notifyAdmin(`🆕 <b>Новая регистрация</b>\n👤 Логин: ${username}\n📛 Имя: ${displayName||username}\n🕐 ${new Date().toLocaleString()}\n🌐 IP: ${getIP(req)}\n📱 UA: ${req.headers['user-agent']}`);
+      notifyAdmin(`🆕 <b>Новая регистрация</b>\n👤 Логин: ${username}\n📛 Имя: ${displayName||username}\n🕐 ${new Date().toLocaleString()}\n🌐 IP: ${ip}\n📱 UA: ${req.headers['user-agent']}`);
       return sendJSON(res, { success: true, user: { id: user.id, username: user.username, displayName: user.displayName, balance: user.balance } });
     }
 
@@ -206,6 +212,10 @@ const server = http.createServer(async (req, res) => {
       const hash = crypto.createHash('sha256').update(password).digest('hex');
       const user = users.find(u => u.username === username && u.password === hash);
       if (!user) return sendJSON(res, { success: false, error: 'Неверный логин или пароль' });
+      if (user.blocked) return sendJSON(res, { success: false, error: 'Аккаунт заблокирован' });
+      // Update IP
+      user.ip = getIP(req);
+      writeJSON(USERS_FILE, users);
       const sess = ensureSession(req, res);
       sess.userId = user.id;
       notifyAdmin(`🔑 <b>Вход в аккаунт</b>\n👤 Логин: ${username}\n🕐 ${new Date().toLocaleString()}\n🌐 IP: ${getIP(req)}\n📱 UA: ${req.headers['user-agent']}`);
@@ -218,6 +228,7 @@ const server = http.createServer(async (req, res) => {
       const users = readJSON(USERS_FILE);
       const user = users.find(u => u.id === sess.userId);
       if (!user) return sendJSON(res, { success: false });
+      if (user.blocked) return sendJSON(res, { success: false, error: 'blocked' });
       return sendJSON(res, { success: true, user: { id: user.id, username: user.username, displayName: user.displayName, balance: user.balance, wallet: user.wallet } });
     }
 
@@ -260,6 +271,36 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === '/api/products' && method === 'GET') {
       return sendJSON(res, readJSON(PRODUCTS_FILE));
+    }
+
+    // === BUY PRODUCT ===
+    if (pathname === '/api/buy' && method === 'POST') {
+      const sess = getSession(req);
+      if (!sess || !sess.userId) return sendJSON(res, { success: false, error: 'Не авторизован' });
+      const body = JSON.parse(await parseBody(req));
+      const { productId, city, zip, email } = body;
+      const users = readJSON(USERS_FILE);
+      const user = users.find(u => u.id === sess.userId);
+      if (!user) return sendJSON(res, { success: false, error: 'Пользователь не найден' });
+      if (user.blocked) return sendJSON(res, { success: false, error: 'Аккаунт заблокирован' });
+      const products = readJSON(PRODUCTS_FILE);
+      const product = products.find(p => p.id === productId);
+      if (!product) return sendJSON(res, { success: false, error: 'Товар не найден' });
+      if (user.balance < product.price) return sendJSON(res, { success: false, error: 'Недостаточно средств' });
+
+      // Deduct balance
+      user.balance = Math.round((user.balance - product.price) * 100) / 100;
+      writeJSON(USERS_FILE, users);
+
+      // Save order
+      const orders = readJSON(ORDERS_FILE);
+      const order = { id: crypto.randomBytes(8).toString('hex'), userId: user.id, productId, productName: product.name, price: product.price, city, zip, email, createdAt: new Date().toISOString() };
+      orders.push(order);
+      writeJSON(ORDERS_FILE, orders);
+
+      notifyAdmin(`🛒 <b>Покупка!</b>\n👤 ${user.username}\n📦 ${product.name}\n💰 $${product.price}\n🏙 ${city}, ${zip}\n📧 ${email}\n💳 Остаток: $${user.balance}`);
+
+      return sendJSON(res, { success: true, newBalance: user.balance });
     }
 
     // === ADMIN ===
@@ -317,7 +358,7 @@ const server = http.createServer(async (req, res) => {
       const sess = getSession(req);
       if (!sess || !sess.isAdmin) return sendJSON(res, { error: 'Unauthorized' }, 401);
       const users = readJSON(USERS_FILE);
-      return sendJSON(res, users.map(u => ({ id: u.id, username: u.username, displayName: u.displayName, balance: u.balance, wallet: u.wallet, createdAt: u.createdAt })));
+      return sendJSON(res, users.map(u => ({ id: u.id, username: u.username, displayName: u.displayName, balance: u.balance, wallet: u.wallet, createdAt: u.createdAt, ip: u.ip || 'N/A', blocked: !!u.blocked })));
     }
 
     if (pathname === '/api/admin/topup' && method === 'POST') {
@@ -335,6 +376,19 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, { success: true, newBalance: user.balance });
     }
 
+    // Block/unblock user
+    if (pathname === '/api/admin/block' && method === 'POST') {
+      const sess = getSession(req);
+      if (!sess || !sess.isAdmin) return sendJSON(res, { error: 'Unauthorized' }, 401);
+      const body = JSON.parse(await parseBody(req));
+      const users = readJSON(USERS_FILE);
+      const user = users.find(u => u.id === body.userId);
+      if (!user) return sendJSON(res, { success: false, error: 'User not found' });
+      user.blocked = !user.blocked;
+      writeJSON(USERS_FILE, users);
+      return sendJSON(res, { success: true, blocked: user.blocked });
+    }
+
     // === STATIC FILES ===
     let filePath;
     if (pathname === '/') filePath = path.join(__dirname, 'public/index.html');
@@ -343,7 +397,6 @@ const server = http.createServer(async (req, res) => {
     else if (pathname === '/tonconnect-manifest.json') filePath = path.join(__dirname, 'public/tonconnect-manifest.json');
     else filePath = path.join(__dirname, 'public', pathname);
 
-    // Security: prevent path traversal
     if (!filePath.startsWith(path.join(__dirname))) {
       res.writeHead(403); return res.end('Forbidden');
     }
