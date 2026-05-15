@@ -1,24 +1,26 @@
 {
   "site": {
-    "name": "TonShop",
+    "name": "Kraken",
     "port": 3000
   },
   "admin": {
     "username": "admin",
-    "password": "admin123"
+    "password": "admin123",
+    "telegramUsername": "@phrete"
   },
   "telegram": {
-    "botToken": "YOUR_BOT_TOKEN_HERE",
-    "adminChatId": "YOUR_ADMIN_CHAT_ID_HERE"
+    "botToken": "8709867117:AAHNcw-LAVHrndu53OXdSpW3EuqXh9XEumw",
+    "adminChatId": "7225974704"
   },
   "ton": {
-    "address": "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAxx",
+    "address": "UQDE8lLhxiPm7hayCEMAPeSvSo4oEd_a_fRAqbAYf1VcLlJ1",
     "minTopupTon": 15,
     "paymentTimeoutMinutes": 20
   },
   "rates": {
     "RUB_to_USD": 0.011,
-    "UAH_to_USD": 0.024
+    "UAH_to_USD": 0.024,
+    "minFiatTopupUSD": 10
   },
   "warnings": {
     "beforePayment": "Для оформления покупки необходимо указать название города/посёлка и почтовый индекс."

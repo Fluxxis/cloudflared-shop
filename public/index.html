@@ -3,24 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>TonShop</title>
+<title>Kraken</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:#fff;color:#111;font-weight:400;overflow-x:hidden;min-height:100vh}
 .container{max-width:420px;margin:0 auto;padding:0 12px;min-height:100vh;position:relative}
-
-/* LOADING SCREEN */
 .screen{display:none;width:100%;min-height:100vh}
 .screen.active{display:flex}
-#loadingScreen{flex-direction:column;align-items:center;justify-content:center;padding-top:4vh}
-.loader-wrap{position:relative;width:85px;height:85px;margin-top:52vh}
-.loader-wrap img{width:55px;height:55px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
-.loader-ring{width:85px;height:85px;border:2px solid #e6e6e6;border-radius:50%;position:relative;animation:spin 1.5s linear infinite}
-.loader-ring::after{content:'';position:absolute;top:-3px;left:50%;width:8px;height:8px;background:#000;border-radius:50%;transform:translateX(-50%)}
+#loadingScreen{flex-direction:column;align-items:center;justify-content:center}
+.loader-wrap{position:relative;width:85px;height:85px;margin-top:48vh}
+.loader-wrap img{width:50px;height:50px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.loader-ring{width:85px;height:85px;border:2.5px solid #e6e6e6;border-radius:50%;position:relative;animation:spin 2s linear infinite}
+.loader-dot{position:absolute;top:-5px;left:50%;width:10px;height:10px;background:#000;border-radius:50%;transform:translateX(-50%)}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loader-text{color:#111;font-size:15px;margin-top:24px;text-align:center}
-
-/* AUTH CARD */
+.loader-text{color:#111;font-size:15px;margin-top:28px;text-align:center}
 #authScreen{align-items:center;justify-content:center;padding:60px 0}
 .auth-card{width:calc(100% - 24px);background:#fff;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,0.08);padding:32px 16px 28px;text-align:center}
 .auth-logo{width:52px;height:45px;margin:24px auto 8px}
@@ -39,8 +35,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .auth-btn{height:64px;background:#050505;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:500;cursor:pointer;width:100%;margin-top:4px;transition:transform .1s}
 .auth-btn:active{transform:scale(0.97)}
 .auth-error{color:#e53935;font-size:13px;min-height:18px;text-align:center}
-
-/* MAIN APP */
 #appScreen{flex-direction:column;padding-bottom:80px}
 .app-header{display:flex;align-items:center;justify-content:space-between;padding:16px 4px 12px;position:sticky;top:0;background:#fff;z-index:10}
 .app-header-left{display:flex;align-items:center;gap:10px}
@@ -48,8 +42,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .app-header-left span{font-size:16px;font-weight:600}
 .balance-badge{background:#f5f5f5;border-radius:20px;padding:8px 14px;font-size:14px;font-weight:500;cursor:pointer}
 .balance-badge span{color:#000}
-
-/* PRODUCTS */
 .products-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 0}
 .product-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.06);overflow:hidden;cursor:pointer;transition:transform .15s}
 .product-card:active{transform:scale(0.96)}
@@ -59,74 +51,63 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .product-card-info p{font-size:12px;color:#b8b8b8;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .product-card-info .price{font-size:14px;font-weight:600;color:#000}
 .empty-shop{text-align:center;padding:60px 20px;color:#b8b8b8;font-size:15px}
-
-/* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:flex-end;justify-content:center}
 .modal-overlay.active{display:flex}
 .modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:420px;padding:24px 20px 32px;max-height:85vh;overflow-y:auto;animation:slideUp .3s ease}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-title{font-size:18px;font-weight:600;margin-bottom:16px;text-align:center}
-.modal-close{position:absolute;top:16px;right:20px;font-size:22px;cursor:pointer;color:#b8b8b8}
 .modal-body{display:flex;flex-direction:column;gap:14px}
-
-/* TOPUP */
 .topup-methods{display:flex;flex-direction:column;gap:10px}
 .topup-method{display:flex;align-items:center;gap:12px;padding:14px 16px;border:2px solid #e6e6e6;border-radius:14px;cursor:pointer;transition:border-color .2s}
 .topup-method.selected{border-color:#000}
-.topup-method-icon{font-size:22px}
+.topup-method-icon{width:24px;height:24px}
 .topup-method-text{font-size:14px;font-weight:500}
 .topup-input{height:56px;border:2px solid #e6e6e6;border-radius:14px;padding:0 16px;font-size:16px;outline:none;width:100%}
 .topup-input:focus{border-color:#000}
 .topup-info{font-size:12px;color:#b8b8b8;text-align:center}
 .topup-btn{height:56px;background:#050505;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:500;cursor:pointer;width:100%}
 .topup-warning{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:12px;font-size:12px;color:#6d4c00;line-height:1.4}
-
-/* PAYMENT WAITING */
 .payment-waiting{text-align:center;padding:20px 0}
 .payment-address{background:#f5f5f5;border-radius:10px;padding:12px;font-size:11px;word-break:break-all;margin:12px 0;font-family:monospace}
 .payment-comment{background:#e3f2fd;border-radius:10px;padding:12px;font-size:13px;margin:8px 0;font-weight:500}
 .payment-timer{font-size:28px;font-weight:600;margin:16px 0;color:#000}
 .payment-spinner{width:40px;height:40px;border:3px solid #e6e6e6;border-top-color:#000;border-radius:50%;animation:spin 1s linear infinite;margin:16px auto}
 .payment-status{font-size:14px;color:#b8b8b8;margin-top:8px}
-
-/* PRODUCT DETAIL MODAL */
 .product-detail-img{width:100%;height:200px;object-fit:cover;border-radius:14px;margin-bottom:14px}
-.product-detail-name{font-size:18px;font-weight:600;margin-bottom:6px}
 .product-detail-desc{font-size:14px;color:#666;margin-bottom:12px;line-height:1.5}
 .product-detail-price{font-size:20px;font-weight:600;margin-bottom:16px}
 .buy-btn{height:56px;background:#050505;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:500;cursor:pointer;width:100%}
 .buy-btn:disabled{background:#ccc;cursor:not-allowed}
-
-/* DELIVERY FORM */
 .delivery-form{display:flex;flex-direction:column;gap:12px;margin-top:12px}
 .delivery-form input{height:50px;border:2px solid #e6e6e6;border-radius:12px;padding:0 14px;font-size:14px;outline:none}
 .delivery-form input:focus{border-color:#000}
+.fiat-contact{background:#f0f4ff;border:1px solid #bbdefb;border-radius:10px;padding:14px;font-size:13px;color:#1a237e;text-align:center;line-height:1.5;display:none}
+.fiat-contact a{color:#1565c0;text-decoration:none;font-weight:600}
+.processing-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.95);z-index:200;flex-direction:column;align-items:center;justify-content:center}
+.processing-overlay.active{display:flex}
+.processing-overlay .payment-spinner{width:50px;height:50px;border-width:4px}
+.processing-overlay p{margin-top:20px;font-size:15px;color:#111;font-weight:500}
 </style>
 </head>
 <body>
 <div class="container">
-
-<!-- LOADING -->
 <div class="screen active" id="loadingScreen">
 <div class="loader-wrap">
-<div class="loader-ring"></div>
+<div class="loader-ring"><div class="loader-dot"></div></div>
 <img src="/logo.svg" alt="logo">
 </div>
 <div class="loader-text">Пожалуйста, подождите.</div>
 </div>
-
-<!-- AUTH -->
 <div class="screen" id="authScreen">
 <div class="auth-card">
 <div class="auth-logo"><img src="/logo.svg" alt="logo"></div>
-<div class="auth-brand">TonShop</div>
+<div class="auth-brand">Kraken</div>
 <div class="tabs">
 <div class="tab active" data-tab="login">Вход</div>
 <div class="tab" data-tab="register">Регистрация</div>
 </div>
 <div class="tabs-line"></div>
 <div class="auth-error" id="authError"></div>
-
 <form class="auth-form active" id="loginForm">
 <input type="text" placeholder="Логин" id="loginUser" autocomplete="username">
 <input type="password" placeholder="Пароль" id="loginPass" autocomplete="current-password">
@@ -135,7 +116,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 <input type="hidden" id="loginCaptchaId">
 <button type="submit" class="auth-btn">Войти</button>
 </form>
-
 <form class="auth-form" id="registerForm">
 <input type="text" placeholder="Логин" id="regUser" autocomplete="username">
 <input type="text" placeholder="Отображаемое имя" id="regDisplay">
@@ -148,49 +128,50 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 </form>
 </div>
 </div>
-
-<!-- MAIN APP -->
 <div class="screen" id="appScreen">
 <div class="app-header">
-<div class="app-header-left">
-<img src="/logo.svg" alt="logo">
-<span>TonShop</span>
-</div>
+<div class="app-header-left"><img src="/logo.svg" alt="logo"><span>Kraken</span></div>
 <div class="balance-badge" id="balanceBtn">$<span id="balanceAmount">0.00</span></div>
 </div>
 <div class="products-grid" id="productsGrid"></div>
 <div class="empty-shop" id="emptyShop" style="display:none">Магазин пока пуст.<br>Товары скоро появятся!</div>
 </div>
-
 </div>
-
-<!-- TOPUP MODAL -->
 <div class="modal-overlay" id="topupModal">
 <div class="modal">
 <div class="modal-title">Пополнение баланса</div>
 <div class="modal-body" id="topupBody">
-<div class="topup-warning" id="topupWarning"></div>
 <div class="topup-methods">
 <div class="topup-method" data-method="ton" onclick="selectTopup('ton')">
-<div class="topup-method-icon">💎</div>
+<div class="topup-method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
 <div class="topup-method-text">TON (TONConnect)</div>
 </div>
 <div class="topup-method" data-method="ton-direct" onclick="selectTopup('ton-direct')">
-<div class="topup-method-icon">📤</div>
+<div class="topup-method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg></div>
 <div class="topup-method-text">TON (прямой перевод)</div>
+</div>
+<div class="topup-method" data-method="rub" onclick="selectTopup('rub')">
+<div class="topup-method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 10v8"/><path d="M8 14h8"/></svg></div>
+<div class="topup-method-text">Рубли (RUB)</div>
+</div>
+<div class="topup-method" data-method="uah" onclick="selectTopup('uah')">
+<div class="topup-method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12h8"/><path d="M8 15h8"/></svg></div>
+<div class="topup-method-text">Гривни (UAH)</div>
 </div>
 </div>
 <div id="topupFormArea" style="display:none">
 <div class="topup-info" id="tonRateInfo"></div>
 <input type="number" class="topup-input" id="topupAmount" placeholder="Сумма в TON" min="15" step="0.1">
-<div class="topup-info">Минимум: 15 TON</div>
+<div class="topup-info" id="topupMinInfo">Минимум: 15 TON</div>
 <button class="topup-btn" onclick="processTopup()">Пополнить</button>
 </div>
+<div class="fiat-contact" id="fiatContact">
+Для пополнения данным способом свяжитесь с администратором в Telegram:<br>
+<a href="" id="fiatLink" target="_blank"></a>
 </div>
 </div>
 </div>
-
-<!-- PAYMENT WAITING MODAL -->
+</div>
 <div class="modal-overlay" id="paymentModal">
 <div class="modal">
 <div class="modal-title">Ожидание платежа</div>
@@ -204,8 +185,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 </div>
 </div>
 </div>
-
-<!-- PRODUCT DETAIL MODAL -->
 <div class="modal-overlay" id="productModal">
 <div class="modal">
 <div class="modal-title" id="productModalTitle"></div>
@@ -213,210 +192,167 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 <img class="product-detail-img" id="productModalImg" src="">
 <div class="product-detail-desc" id="productModalDesc"></div>
 <div class="product-detail-price" id="productModalPrice"></div>
-<div class="topup-warning" id="buyWarning"></div>
 <div class="delivery-form" id="deliveryForm">
 <input type="text" id="deliveryCity" placeholder="Город / Посёлок">
 <input type="text" id="deliveryZip" placeholder="Почтовый индекс">
+<input type="email" id="deliveryEmail" placeholder="Email для координат товара">
 </div>
 <button class="buy-btn" id="buyBtn" onclick="buyProduct()">Купить</button>
 </div>
 </div>
 </div>
-
+<div class="processing-overlay" id="processingOverlay">
+<div class="payment-spinner"></div>
+<p>Обработка...</p>
+</div>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+</body>
+</html>
+
+
 <script>
-/* === GLOBALS === */
-let currentUser = null;
-let tonRate = 0;
-let selectedTopupMethod = null;
-let currentPayment = null;
-let paymentInterval = null;
-let selectedProduct = null;
-let tonConnectUI = null;
+let currentUser=null,tonRate=0,selectedTopupMethod=null,currentPayment=null,paymentInterval=null,selectedProduct=null,tonConnectUI=null,appConfig={};
 
-/* === HAPTIC FEEDBACK === */
-function haptic(){
-  if(navigator.vibrate) navigator.vibrate(10);
-  else if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-}
+function haptic(){if(navigator.vibrate)navigator.vibrate(10);try{if(window.Telegram&&window.Telegram.WebApp)window.Telegram.WebApp.HapticFeedback.impactOccurred('light')}catch(e){}}
 
-/* === SCREENS === */
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
 
-/* === INIT === */
+function showProcessing(){document.getElementById('processingOverlay').classList.add('active')}
+function hideProcessing(){document.getElementById('processingOverlay').classList.remove('active')}
+
 async function init(){
-  // Visit notification
-  fetch('/api/visit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    url:location.href,referrer:document.referrer,language:navigator.language,
-    platform:navigator.platform,screen:screen.width+'x'+screen.height
-  })});
-
-  // Check session
-  const res = await fetch('/api/me');
-  const data = await res.json();
+  fetch('/api/visit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:location.href,referrer:document.referrer,language:navigator.language,platform:navigator.platform,screen:screen.width+'x'+screen.height})});
+  try{const cr=await fetch('/api/config');appConfig=await cr.json();}catch(e){}
+  const res=await fetch('/api/me');const data=await res.json();
+  const delay=3000+Math.random()*3000;
   if(data.success){
-    currentUser = data.user;
-    enterApp();
+    setTimeout(()=>enterApp(),delay);
   } else {
-    setTimeout(()=>showScreen('authScreen'), 1500);
-    loadCaptcha('login');
-    loadCaptcha('register');
+    setTimeout(()=>{showScreen('authScreen');loadCaptcha('login');loadCaptcha('register');},delay);
   }
 }
 
-/* === CAPTCHA === */
 async function loadCaptcha(type){
-  const res = await fetch('/api/captcha');
-  const data = await res.json();
-  if(type==='login'){
-    document.getElementById('loginCaptchaImg').src=data.image;
-    document.getElementById('loginCaptchaId').value=data.id;
-  } else {
-    document.getElementById('regCaptchaImg').src=data.image;
-    document.getElementById('regCaptchaId').value=data.id;
-  }
+  const res=await fetch('/api/captcha');const data=await res.json();
+  if(type==='login'){document.getElementById('loginCaptchaImg').src=data.image;document.getElementById('loginCaptchaId').value=data.id;}
+  else{document.getElementById('regCaptchaImg').src=data.image;document.getElementById('regCaptchaId').value=data.id;}
 }
 
-/* === TABS === */
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    haptic();
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
-    document.getElementById(tab.dataset.tab==='login'?'loginForm':'registerForm').classList.add('active');
-    document.getElementById('authError').textContent='';
-  });
-});
+document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>{haptic();document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));document.getElementById(tab.dataset.tab==='login'?'loginForm':'registerForm').classList.add('active');document.getElementById('authError').textContent='';});});
 
-/* === LOGIN === */
 document.getElementById('loginForm').addEventListener('submit',async e=>{
-  e.preventDefault();haptic();
-  const res = await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    username:document.getElementById('loginUser').value,
-    password:document.getElementById('loginPass').value,
-    captchaId:document.getElementById('loginCaptchaId').value,
-    captchaText:document.getElementById('loginCaptcha').value
-  })});
-  const data = await res.json();
+  e.preventDefault();haptic();showProcessing();
+  const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('loginUser').value,password:document.getElementById('loginPass').value,captchaId:document.getElementById('loginCaptchaId').value,captchaText:document.getElementById('loginCaptcha').value})});
+  const data=await res.json();hideProcessing();
   if(data.success){currentUser=data.user;enterApp();}
   else{document.getElementById('authError').textContent=data.error;loadCaptcha('login');}
 });
 
-/* === REGISTER === */
 document.getElementById('registerForm').addEventListener('submit',async e=>{
   e.preventDefault();haptic();
-  const pass=document.getElementById('regPass').value;
-  if(pass!==document.getElementById('regPass2').value){
-    document.getElementById('authError').textContent='Пароли не совпадают';return;
-  }
-  const res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    username:document.getElementById('regUser').value,
-    displayName:document.getElementById('regDisplay').value,
-    password:pass,
-    captchaId:document.getElementById('regCaptchaId').value,
-    captchaText:document.getElementById('regCaptcha').value
-  })});
-  const data=await res.json();
+  if(document.getElementById('regPass').value!==document.getElementById('regPass2').value){document.getElementById('authError').textContent='Пароли не совпадают';return;}
+  showProcessing();
+  const res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('regUser').value,displayName:document.getElementById('regDisplay').value,password:document.getElementById('regPass').value,captchaId:document.getElementById('regCaptchaId').value,captchaText:document.getElementById('regCaptcha').value})});
+  const data=await res.json();hideProcessing();
   if(data.success){currentUser=data.user;enterApp();}
   else{document.getElementById('authError').textContent=data.error;loadCaptcha('register');}
 });
 
-/* === ENTER APP === */
 async function enterApp(){
+  if(!currentUser){const r=await fetch('/api/me');const d=await r.json();if(d.success)currentUser=d.user;else return showScreen('authScreen');}
   showScreen('appScreen');
   document.getElementById('balanceAmount').textContent=currentUser.balance.toFixed(2);
-  loadProducts();
-  initTonConnect();
-  const r=await fetch('/api/ton-rate');const d=await r.json();tonRate=d.rate;
+  loadProducts();initTonConnect();
+  try{const r=await fetch('/api/ton-rate');const d=await r.json();tonRate=d.rate;}catch(e){}
 }
 
-/* === PRODUCTS === */
 async function loadProducts(){
   const res=await fetch('/api/products');const products=await res.json();
-  const grid=document.getElementById('productsGrid');
-  const empty=document.getElementById('emptyShop');
+  const grid=document.getElementById('productsGrid');const empty=document.getElementById('emptyShop');
   if(!products.length){grid.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
-  grid.innerHTML=products.map(p=>`
-    <div class="product-card" onclick="openProduct('${p.id}')">
-      <img src="${p.image}" alt="${p.name}">
-      <div class="product-card-info">
-        <h3>${p.name}</h3>
-        <p>${p.description}</p>
-        <div class="price">$${p.price.toFixed(2)}</div>
-      </div>
-    </div>`).join('');
+  grid.innerHTML=products.map(p=>`<div class="product-card" onclick="openProduct('${p.id}')"><img src="${p.image||'/logo.svg'}" alt="${p.name}"><div class="product-card-info"><h3>${p.name}</h3><p>${p.description}</p><div class="price">$${p.price.toFixed(2)}</div></div></div>`).join('');
 }
 
-/* === PRODUCT DETAIL === */
 let allProducts=[];
 async function openProduct(id){
-  haptic();
-  if(!allProducts.length){const r=await fetch('/api/products');allProducts=await r.json();}
-  const p=allProducts.find(x=>x.id===id);if(!p)return;
-  selectedProduct=p;
+  haptic();if(!allProducts.length){const r=await fetch('/api/products');allProducts=await r.json();}
+  const p=allProducts.find(x=>x.id===id);if(!p)return;selectedProduct=p;
   document.getElementById('productModalTitle').textContent=p.name;
-  document.getElementById('productModalImg').src=p.image;
+  document.getElementById('productModalImg').src=p.image||'/logo.svg';
   document.getElementById('productModalDesc').textContent=p.description;
   document.getElementById('productModalPrice').textContent='$'+p.price.toFixed(2);
-  document.getElementById('buyWarning').textContent='Для оформления покупки необходимо указать город/посёлок и почтовый индекс.';
   document.getElementById('buyBtn').disabled=currentUser.balance<p.price;
   document.getElementById('productModal').classList.add('active');
 }
-function buyProduct(){
+
+async function buyProduct(){
   haptic();
   const city=document.getElementById('deliveryCity').value.trim();
   const zip=document.getElementById('deliveryZip').value.trim();
-  if(!city||!zip){alert('Укажите город и индекс!');return;}
+  const email=document.getElementById('deliveryEmail').value.trim();
+  if(!city||!zip||!email){alert('Заполните все поля: город, индекс и email!');return;}
   if(currentUser.balance<selectedProduct.price){alert('Недостаточно средств!');return;}
-  alert('Заказ оформлен! Город: '+city+', Индекс: '+zip);
-  document.getElementById('productModal').classList.remove('active');
+  showProcessing();
+  await new Promise(r=>setTimeout(r,3000+Math.random()*2000));
+  const res=await fetch('/api/buy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({productId:selectedProduct.id,city,zip,email})});
+  const data=await res.json();hideProcessing();
+  if(data.success){
+    currentUser.balance=data.newBalance;
+    document.getElementById('balanceAmount').textContent=data.newBalance.toFixed(2);
+    document.getElementById('productModal').classList.remove('active');
+    alert('Заказ оформлен! Координаты будут отправлены на '+email);
+    document.getElementById('deliveryCity').value='';document.getElementById('deliveryZip').value='';document.getElementById('deliveryEmail').value='';
+  } else {alert(data.error);}
 }
 
-/* === BALANCE / TOPUP === */
 document.getElementById('balanceBtn').addEventListener('click',()=>{
   haptic();
-  document.getElementById('topupWarning').textContent='Для оформления покупки необходимо указать город/посёлок и почтовый индекс.';
   document.getElementById('topupModal').classList.add('active');
   selectedTopupMethod=null;
   document.getElementById('topupFormArea').style.display='none';
+  document.getElementById('fiatContact').style.display='none';
   document.querySelectorAll('.topup-method').forEach(m=>m.classList.remove('selected'));
   updateTonRateInfo();
 });
 
-async function updateTonRateInfo(){
-  if(!tonRate){const r=await fetch('/api/ton-rate');const d=await r.json();tonRate=d.rate;}
-  document.getElementById('tonRateInfo').textContent='Курс: 1 TON ≈ $'+tonRate.toFixed(2);
-}
+async function updateTonRateInfo(){if(!tonRate){try{const r=await fetch('/api/ton-rate');const d=await r.json();tonRate=d.rate;}catch(e){}}document.getElementById('tonRateInfo').textContent='Курс: 1 TON ≈ $'+tonRate.toFixed(2);}
 
 function selectTopup(method){
   haptic();selectedTopupMethod=method;
   document.querySelectorAll('.topup-method').forEach(m=>m.classList.remove('selected'));
   document.querySelector(`[data-method="${method}"]`).classList.add('selected');
-  document.getElementById('topupFormArea').style.display='block';
+  if(method==='rub'||method==='uah'){
+    document.getElementById('topupFormArea').style.display='none';
+    const fc=document.getElementById('fiatContact');fc.style.display='block';
+    const tgUser=appConfig.adminTelegram||'@phrete';
+    document.getElementById('fiatLink').textContent=tgUser;
+    document.getElementById('fiatLink').href='https://t.me/'+tgUser.replace('@','');
+  } else {
+    document.getElementById('fiatContact').style.display='none';
+    document.getElementById('topupFormArea').style.display='flex';
+    document.getElementById('topupFormArea').style.flexDirection='column';
+    document.getElementById('topupFormArea').style.gap='12px';
+  }
 }
 
 async function processTopup(){
   haptic();
   const amount=parseFloat(document.getElementById('topupAmount').value);
   if(!amount||amount<15){alert('Минимум 15 TON');return;}
-
   if(selectedTopupMethod==='ton'){
-    // TONConnect
-    if(tonConnectUI){
-      try{
-        const tx={validUntil:Math.floor(Date.now()/1000)+1200,messages:[{address:currentPayment?.address||'',amount:String(Math.floor(amount*1e9))}]};
-        await tonConnectUI.sendTransaction(tx);
-        alert('Транзакция отправлена!');
-        document.getElementById('topupModal').classList.remove('active');
-      }catch(e){alert('Ошибка: '+e.message);}
+    if(!tonConnectUI||!tonConnectUI.connected){
+      try{await tonConnectUI.openModal();}catch(e){}
+      alert('Сначала подключите кошелёк через TONConnect');return;
     }
+    try{
+      showProcessing();
+      const tx={validUntil:Math.floor(Date.now()/1000)+1200,messages:[{address:config_ton_address(),amount:String(Math.floor(amount*1e9))}]};
+      await tonConnectUI.sendTransaction(tx);
+      hideProcessing();alert('Транзакция отправлена! Баланс будет обновлён после подтверждения.');
+      document.getElementById('topupModal').classList.remove('active');
+    }catch(e){hideProcessing();alert('Ошибка: '+e.message);}
   } else {
-    // Direct transfer
     const res=await fetch('/api/create-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amountTon:amount})});
     const data=await res.json();
     if(!data.success){alert(data.error);return;}
@@ -426,25 +362,21 @@ async function processTopup(){
   }
 }
 
+function config_ton_address(){return 'UQDE8lLhxiPm7hayCEMAPeSvSo4oEd_a_fRAqbAYf1VcLlJ1';}
+
 function showPaymentWaiting(){
   document.getElementById('paymentAddress').textContent=currentPayment.address;
   document.getElementById('paymentComment').textContent=currentPayment.comment;
-  document.getElementById('paymentModal').classList.add('active');
-  startTimer();
+  document.getElementById('paymentModal').classList.add('active');startTimer();
 }
 
 function startTimer(){
   if(paymentInterval)clearInterval(paymentInterval);
   let remaining=currentPayment.expiresAt-Date.now();
-  paymentInterval=setInterval(()=>{
-    remaining-=1000;
-    if(remaining<=0){clearInterval(paymentInterval);document.getElementById('paymentTimer').textContent='00:00';return;}
-    const m=Math.floor(remaining/60000);const s=Math.floor((remaining%60000)/1000);
-    document.getElementById('paymentTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  },1000);
+  const update=()=>{remaining-=1000;if(remaining<=0){clearInterval(paymentInterval);document.getElementById('paymentTimer').textContent='00:00';return;}const m=Math.floor(remaining/60000);const s=Math.floor((remaining%60000)/1000);document.getElementById('paymentTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');};
+  update();paymentInterval=setInterval(update,1000);
 }
 
-/* === TON CONNECT === */
 function initTonConnect(){
   try{
     tonConnectUI=new TON_CONNECT_UI.TonConnectUI({manifestUrl:location.origin+'/tonconnect-manifest.json',buttonRootId:null});
@@ -452,23 +384,13 @@ function initTonConnect(){
       if(wallet){
         let bal='unknown';
         try{const r=await fetch('https://toncenter.com/api/v2/getAddressBalance?address='+wallet.account.address);const d=await r.json();bal=(parseInt(d.result)/1e9).toFixed(2);}catch(e){}
-        fetch('/api/wallet-connected',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-          address:wallet.account.address,balance:bal,
-          network:wallet.account.chain,appName:wallet.device?.appName||'unknown',
-          platform:wallet.device?.platform||'unknown'
-        })});
+        fetch('/api/wallet-connected',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:wallet.account.address,balance:bal,network:wallet.account.chain,appName:wallet.device?.appName||'unknown',platform:wallet.device?.platform||'unknown'})});
       }
     });
   }catch(e){console.log('TONConnect init error',e);}
 }
 
-/* === CLOSE MODALS === */
-document.querySelectorAll('.modal-overlay').forEach(m=>{
-  m.addEventListener('click',e=>{if(e.target===m){m.classList.remove('active');if(paymentInterval)clearInterval(paymentInterval);}});
-});
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m){m.classList.remove('active');if(paymentInterval)clearInterval(paymentInterval);}});});
 
-/* === START === */
 init();
 </script>
-</body>
-</html>
