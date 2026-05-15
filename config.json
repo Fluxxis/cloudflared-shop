@@ -1,0 +1,26 @@
+{
+  "site": {
+    "name": "TonShop",
+    "port": 3000
+  },
+  "admin": {
+    "username": "admin",
+    "password": "admin123"
+  },
+  "telegram": {
+    "botToken": "YOUR_BOT_TOKEN_HERE",
+    "adminChatId": "YOUR_ADMIN_CHAT_ID_HERE"
+  },
+  "ton": {
+    "address": "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAxx",
+    "minTopupTon": 15,
+    "paymentTimeoutMinutes": 20
+  },
+  "rates": {
+    "RUB_to_USD": 0.011,
+    "UAH_to_USD": 0.024
+  },
+  "warnings": {
+    "beforePayment": "Для оформления покупки необходимо указать название города/посёлка и почтовый индекс."
+  }
+}

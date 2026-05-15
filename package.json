@@ -1,0 +1,11 @@
+{
+  "name": "cloudflared-shop",
+  "version": "1.0.0",
+  "description": "TON Marketplace via Cloudflare Tunnel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+
+}

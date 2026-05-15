@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>TonShop — Админ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:#fff;color:#111;min-height:100vh}
+.container{max-width:420px;margin:0 auto;padding:16px 12px}
+h1{font-size:20px;font-weight:600;margin-bottom:20px;text-align:center}
+.login-card{background:#fff;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,0.08);padding:32px 20px;margin-top:30vh}
+.login-card h2{font-size:18px;font-weight:600;text-align:center;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-group input,.form-group textarea,.form-group select{width:100%;height:56px;border:2px solid #e6e6e6;border-radius:14px;padding:0 16px;font-size:15px;outline:none;background:#fff}
+.form-group textarea{height:100px;padding:14px 16px;resize:vertical}
+.form-group input:focus,.form-group textarea:focus{border-color:#000}
+.form-group input[type="file"]{padding:14px 16px;height:auto}
+.btn{width:100%;height:56px;background:#050505;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:500;cursor:pointer;margin-top:8px}
+.btn:active{transform:scale(0.97)}
+.btn-danger{background:#e53935}
+.btn-sm{height:40px;font-size:13px;margin-top:4px}
+.error{color:#e53935;font-size:13px;text-align:center;margin-bottom:10px}
+
+/* Tabs */
+.admin-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid #e6e6e6}
+.admin-tab{flex:1;text-align:center;padding:12px 0;font-size:14px;font-weight:500;color:#b8b8b8;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.admin-tab.active{color:#000;border-bottom-color:#000}
+
+/* Panels */
+.panel{display:none}
+.panel.active{display:block}
+
+/* Products list */
+.product-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #e6e6e6;border-radius:12px;margin-bottom:10px}
+.product-item img{width:56px;height:56px;object-fit:cover;border-radius:10px}
+.product-item-info{flex:1}
+.product-item-info h4{font-size:14px;font-weight:500}
+.product-item-info p{font-size:12px;color:#b8b8b8}
+.product-item-info .price{font-size:13px;font-weight:600;color:#000}
+.product-item button{width:36px;height:36px;border:none;background:#fee;color:#e53935;border-radius:8px;font-size:16px;cursor:pointer}
+
+/* Users list */
+.user-item{padding:12px;border:1px solid #e6e6e6;border-radius:12px;margin-bottom:10px}
+.user-item h4{font-size:14px;font-weight:500;margin-bottom:4px}
+.user-item p{font-size:12px;color:#666;margin-bottom:2px}
+.topup-row{display:flex;gap:8px;margin-top:8px;align-items:center}
+.topup-row input{flex:1;height:40px;border:2px solid #e6e6e6;border-radius:10px;padding:0 10px;font-size:13px;outline:none}
+.topup-row select{height:40px;border:2px solid #e6e6e6;border-radius:10px;padding:0 8px;font-size:13px;outline:none;background:#fff}
+.topup-row button{height:40px;padding:0 14px;background:#050505;color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- LOGIN -->
+<div id="adminLogin" class="login-card">
+<h2>Админ-панель</h2>
+<div class="error" id="adminError"></div>
+<div class="form-group"><input type="text" id="aUser" placeholder="Логин"></div>
+<div class="form-group"><input type="password" id="aPass" placeholder="Пароль"></div>
+<button class="btn" onclick="adminLogin()">Войти</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel" style="display:none">
+<h1>Админ-панель</h1>
+<div class="admin-tabs">
+<div class="admin-tab active" data-panel="addProduct">Добавить товар</div>
+<div class="admin-tab" data-panel="productsList">Товары</div>
+<div class="admin-tab" data-panel="usersList">Юзеры</div>
+</div>
+
+<!-- ADD PRODUCT -->
+<div class="panel active" id="addProduct">
+<div class="form-group"><input type="text" id="pName" placeholder="Название товара"></div>
+<div class="form-group"><textarea id="pDesc" placeholder="Описание"></textarea></div>
+<div class="form-group"><input type="number" id="pPrice" placeholder="Цена ($)" step="0.01" min="0"></div>
+<div class="form-group"><input type="file" id="pImage" accept="image/*"></div>
+<button class="btn" onclick="addProduct()">Добавить товар</button>
+</div>
+
+<!-- PRODUCTS LIST -->
+<div class="panel" id="productsList">
+<div id="productsContainer"></div>
+</div>
+
+<!-- USERS LIST -->
+<div class="panel" id="usersList">
+<div id="usersContainer"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+/* ADMIN LOGIN */
+async function adminLogin(){
+  const res=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    username:document.getElementById('aUser').value,
+    password:document.getElementById('aPass').value
+  })});
+  const data=await res.json();
+  if(data.success){
+    document.getElementById('adminLogin').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    loadProducts();loadUsers();
+  } else {
+    document.getElementById('adminError').textContent=data.error;
+  }
+}
+
+/* TABS */
+document.querySelectorAll('.admin-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.panel).classList.add('active');
+  });
+});
+
+/* ADD PRODUCT */
+async function addProduct(){
+  const form=new FormData();
+  form.append('name',document.getElementById('pName').value);
+  form.append('description',document.getElementById('pDesc').value);
+  form.append('price',document.getElementById('pPrice').value);
+  const file=document.getElementById('pImage').files[0];
+  if(file)form.append('image',file);
+  const res=await fetch('/api/admin/product',{method:'POST',body:form});
+  const data=await res.json();
+  if(data.success){
+    alert('Товар добавлен!');
+    document.getElementById('pName').value='';
+    document.getElementById('pDesc').value='';
+    document.getElementById('pPrice').value='';
+    document.getElementById('pImage').value='';
+    loadProducts();
+  }
+}
+
+/* LOAD PRODUCTS */
+async function loadProducts(){
+  const res=await fetch('/api/products');const products=await res.json();
+  const c=document.getElementById('productsContainer');
+  if(!products.length){c.innerHTML='<p style="text-align:center;color:#b8b8b8;padding:20px">Нет товаров</p>';return;}
+  c.innerHTML=products.map(p=>`
+    <div class="product-item">
+      <img src="${p.image||'/logo.svg'}" alt="">
+      <div class="product-item-info">
+        <h4>${p.name}</h4>
+        <p>${p.description}</p>
+        <div class="price">$${p.price.toFixed(2)}</div>
+      </div>
+      <button onclick="deleteProduct('${p.id}')">✕</button>
+    </div>`).join('');
+}
+
+/* DELETE PRODUCT */
+async function deleteProduct(id){
+  if(!confirm('Удалить товар?'))return;
+  await fetch('/api/admin/product/'+id,{method:'DELETE'});
+  loadProducts();
+}
+
+/* LOAD USERS */
+async function loadUsers(){
+  const res=await fetch('/api/admin/users');const users=await res.json();
+  const c=document.getElementById('usersContainer');
+  if(!users.length){c.innerHTML='<p style="text-align:center;color:#b8b8b8;padding:20px">Нет пользователей</p>';return;}
+  c.innerHTML=users.map(u=>`
+    <div class="user-item">
+      <h4>${u.displayName} (@${u.username})</h4>
+      <p>Баланс: $${(u.balance||0).toFixed(2)}</p>
+      <p>Кошелёк: ${u.wallet||'не подключён'}</p>
+      <p>Регистрация: ${new Date(u.createdAt).toLocaleString()}</p>
+      <div class="topup-row">
+        <input type="number" id="topup-${u.id}" placeholder="Сумма" min="0" step="0.01">
+        <select id="currency-${u.id}">
+          <option value="USD">USD</option>
+          <option value="RUB">RUB</option>
+          <option value="UAH">UAH</option>
+        </select>
+        <button onclick="topupUser('${u.id}')">Пополнить</button>
+      </div>
+    </div>`).join('');
+}
+
+/* TOPUP USER */
+async function topupUser(id){
+  const amount=parseFloat(document.getElementById('topup-'+id).value);
+  const currency=document.getElementById('currency-'+id).value;
+  if(!amount||amount<=0){alert('Введите сумму');return;}
+  const res=await fetch('/api/admin/topup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:id,amount,currency})});
+  const data=await res.json();
+  if(data.success){alert('Баланс пополнен: $'+data.newBalance.toFixed(2));loadUsers();}
+  else alert(data.error);
+}
+</script>
+</body>
+</html>
